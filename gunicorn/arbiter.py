@@ -176,6 +176,7 @@ class Arbiter(object):
         signal.signal(signal.SIGCHLD, self.handle_chld)
 
     def signal(self, sig, frame):
+        self.log.info('Arbiter: Received signal %d' % (sig))
         if len(self.SIG_QUEUE) < 5:
             self.SIG_QUEUE.append(sig)
             self.wakeup()
@@ -228,6 +229,7 @@ class Arbiter(object):
 
     def handle_chld(self, sig, frame):
         "SIGCHLD handling"
+        self.log.info("Arbiter: Handle SIGCHLD")
         self.reap_workers()
         self.wakeup()
 
@@ -243,15 +245,18 @@ class Arbiter(object):
 
     def handle_term(self):
         "SIGTERM handling"
+        self.log.info("Arbiter: Handle SIGTERM")
         raise StopIteration
 
     def handle_int(self):
         "SIGINT handling"
+        self.log.info("Arbiter: Handle SIGINT")
         self.stop(False)
         raise StopIteration
 
     def handle_quit(self):
         "SIGQUIT handling"
+        self.log.info("Arbiter: Handle SIGQUIT")
         self.stop(False)
         raise StopIteration
 
@@ -278,6 +283,7 @@ class Arbiter(object):
         SIGUSR1 handling.
         Kill all workers by sending them a SIGUSR1
         """
+        self.log.info("Arbiter: Handle SIGUSR1")
         self.log.reopen_files()
         self.kill_workers(signal.SIGUSR1)
 
@@ -288,6 +294,7 @@ class Arbiter(object):
         master without affecting old workers. Use this to do live
         deployment with the ability to backout a change.
         """
+        self.log.info("Arbiter: Handle SIGUSR2")
         self.reexec()
 
     def handle_winch(self):
@@ -367,7 +374,12 @@ class Arbiter(object):
 
         if self.reexec_pid == 0 and self.master_pid == 0:
             for l in self.LISTENERS:
+                self.log.info('gracefully closing socket ...')
+                for i in range(3):
+                    time.sleep(1)
+                    self.log.info('waiting before gracefully closing socket, %d' % (i))
                 l.close()
+            self.log.info('all server sockets should be closed by now')
 
         self.LISTENERS = []
         sig = signal.SIGTERM
@@ -375,6 +387,11 @@ class Arbiter(object):
             sig = signal.SIGQUIT
         limit = time.time() + self.cfg.graceful_timeout
         # instruct the workers to exit
+        self.log.info('killing workers ...')
+        for i in range(3):
+            time.sleep(i)
+            self.log.info('killing workers in %d ...' % (3-i))
+        self.log.info('killing workers ... GO')
         self.kill_workers(sig)
         # wait until the graceful timeout
         while self.WORKERS and time.time() < limit:
@@ -555,6 +572,7 @@ class Arbiter(object):
             self.log.info("Booting worker with pid: %s", worker_pid)
             self.cfg.post_fork(self, worker)
             worker.init_process()
+            self.log.info("Worker calling sys.exit(0) (pid: %s)", worker_pid)
             sys.exit(0)
         except SystemExit:
             raise

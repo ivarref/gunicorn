@@ -11,15 +11,18 @@
 from __future__ import unicode_literals
 
 import multiprocessing
+import random
+import sys
+import time
+import uuid
 
 import gunicorn.app.base
-
 from gunicorn.six import iteritems
-
 
 def number_of_workers():
     return (multiprocessing.cpu_count() * 2) + 1
 
+resp = str(uuid.uuid4())
 
 def handler_app(environ, start_response):
     response_body = b'Works fine'
@@ -30,8 +33,12 @@ def handler_app(environ, start_response):
     ]
 
     start_response(status, response_headers)
+    sys.stdout.write('handling request ...\n')
+    sys.stdout.flush()
+    time.sleep(0.1 * random.random()) # do some work
 
-    return [response_body]
+    global resp
+    return [resp]
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
@@ -53,7 +60,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
 if __name__ == '__main__':
     options = {
-        'bind': '%s:%s' % ('127.0.0.1', '8080'),
-        'workers': number_of_workers(),
+        'bind': '%s:%s' % ('0.0.0.0', '8080'),
+        'workers': 1,
     }
     StandaloneApplication(handler_app, options).run()

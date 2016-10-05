@@ -1,0 +1,43 @@
+# To reproduce this:
+# $ virtualenv venv
+# $ ./venv/bin/python ./setup.py install
+# $ ./venv/bin/pip install requests
+
+# Then start the server:
+# $ ./venv/bin/python ./examples/standalone_app.py
+# Make note of the PID
+
+# In a different terminal start hammering the server:
+# $ ./venv/bin/python ./hammer.py
+# OR $ ./venv/bin/python ./hammer2.py
+
+# In yet a different terminal:
+# $ kill PID_HERE
+
+[2016-10-05 12:33:12 +0000] [24020] [INFO] Starting gunicorn 19.6.0
+[2016-10-05 12:33:12 +0000] [24020] [INFO] Listening at: http://0.0.0.0:8080 (24020)
+[2016-10-05 12:33:12 +0000] [24020] [INFO] Using worker: sync
+[2016-10-05 12:33:12 +0000] [24028] [INFO] Booting worker with pid: 24028
+handling request ...
+[2016-10-05 12:33:35 +0000] [24020] [INFO] Arbiter: Received signal 15
+[2016-10-05 12:33:35 +0000] [24020] [INFO] Handling signal: term
+[2016-10-05 12:33:35 +0000] [24020] [INFO] Arbiter: Handle SIGTERM
+[2016-10-05 12:33:35 +0000] [24020] [INFO] gracefully closing socket ...
+handling request ...
+[2016-10-05 12:33:36 +0000] [24020] [INFO] waiting before gracefully closing socket, 0
+handling request ...
+[2016-10-05 12:33:37 +0000] [24020] [INFO] waiting before gracefully closing socket, 1
+handling request ...
+[2016-10-05 12:33:38 +0000] [24020] [INFO] waiting before gracefully closing socket, 2
+[2016-10-05 12:33:38 +0000] [24020] [INFO] all server sockets should be closed by now
+[2016-10-05 12:33:38 +0000] [24020] [INFO] killing workers ...
+[2016-10-05 12:33:38 +0000] [24020] [INFO] killing workers in 3 ...
+handling request ...
+[2016-10-05 12:33:39 +0000] [24020] [INFO] killing workers in 2 ...
+handling request ...
+[2016-10-05 12:33:41 +0000] [24020] [INFO] killing workers in 1 ...
+[2016-10-05 12:33:41 +0000] [24020] [INFO] killing workers ... GO
+[2016-10-05 12:33:41 +0000] [24028] [INFO] Worker calling sys.exit(0) (pid: 24028)
+[2016-10-05 12:33:41 +0000] [24028] [INFO] Worker exiting (pid: 24028)
+[2016-10-05 12:33:41 +0000] [24020] [INFO] Arbiter: Handle SIGCHLD
+[2016-10-05 12:33:41 +0000] [24020] [INFO] Shutting down: Master
